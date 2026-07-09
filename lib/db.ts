@@ -284,9 +284,24 @@ export async function updateTask(
   const existing = await getTask(id);
   if (!existing) return null;
 
+  const cleanUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([, value]) => value !== undefined)
+  ) as Partial<
+    Pick<
+      Task,
+      | "title"
+      | "description"
+      | "status"
+      | "category"
+      | "urgency"
+      | "importance"
+      | "site"
+    >
+  >;
+
   const next: Task = {
     ...existing,
-    ...updates,
+    ...cleanUpdates,
     updated_at: now(),
   };
 
@@ -309,38 +324,38 @@ export async function updateTask(
   });
 
   const changes: string[] = [];
-  if (updates.title && updates.title !== existing.title) {
-    changes.push(`Title: "${existing.title}" → "${updates.title}"`);
+  if (cleanUpdates.title && cleanUpdates.title !== existing.title) {
+    changes.push(`Title: "${existing.title}" → "${cleanUpdates.title}"`);
   }
   if (
-    updates.description !== undefined &&
-    updates.description !== existing.description
+    cleanUpdates.description !== undefined &&
+    cleanUpdates.description !== existing.description
   ) {
     changes.push("Description updated");
   }
-  if (updates.status && updates.status !== existing.status) {
+  if (cleanUpdates.status && cleanUpdates.status !== existing.status) {
     changes.push(
-      `Status: ${STATUS_LABELS[existing.status]} → ${STATUS_LABELS[updates.status]}`
+      `Status: ${STATUS_LABELS[existing.status]} → ${STATUS_LABELS[cleanUpdates.status]}`
     );
   }
-  if (updates.category && updates.category !== existing.category) {
+  if (cleanUpdates.category && cleanUpdates.category !== existing.category) {
     changes.push(
-      `Category: ${CATEGORY_LABELS[existing.category]} → ${CATEGORY_LABELS[updates.category]}`
+      `Category: ${CATEGORY_LABELS[existing.category]} → ${CATEGORY_LABELS[cleanUpdates.category]}`
     );
   }
-  if (updates.urgency && updates.urgency !== existing.urgency) {
+  if (cleanUpdates.urgency && cleanUpdates.urgency !== existing.urgency) {
     changes.push(
-      `Urgency: ${URGENCY_LABELS[existing.urgency]} → ${URGENCY_LABELS[updates.urgency]}`
+      `Urgency: ${URGENCY_LABELS[existing.urgency]} → ${URGENCY_LABELS[cleanUpdates.urgency]}`
     );
   }
-  if (updates.importance && updates.importance !== existing.importance) {
+  if (cleanUpdates.importance && cleanUpdates.importance !== existing.importance) {
     changes.push(
-      `Importance: ${IMPORTANCE_LABELS[existing.importance]} → ${IMPORTANCE_LABELS[updates.importance]}`
+      `Importance: ${IMPORTANCE_LABELS[existing.importance]} → ${IMPORTANCE_LABELS[cleanUpdates.importance]}`
     );
   }
-  if (updates.site && updates.site !== existing.site) {
+  if (cleanUpdates.site && cleanUpdates.site !== existing.site) {
     changes.push(
-      `Site: ${SITE_LABELS[existing.site]} → ${SITE_LABELS[updates.site]}`
+      `Site: ${SITE_LABELS[existing.site]} → ${SITE_LABELS[cleanUpdates.site]}`
     );
   }
 

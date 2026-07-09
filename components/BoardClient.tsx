@@ -141,6 +141,25 @@ export function BoardClient({
     setActiveId(String(event.active.id));
   }
 
+  function resolveDropStatus(over: DragEndEvent["over"]): TaskStatus | null {
+    if (!over) return null;
+
+    const overId = String(over.id);
+    if (STATUS_ORDER.includes(overId as TaskStatus)) {
+      return overId as TaskStatus;
+    }
+
+    const overTask = tasks.find((t) => t.id === overId);
+    if (overTask) return overTask.status;
+
+    const data = over.data.current as { status?: TaskStatus } | undefined;
+    if (data?.status && STATUS_ORDER.includes(data.status)) {
+      return data.status;
+    }
+
+    return null;
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     setActiveId(null);
 
@@ -148,8 +167,8 @@ export function BoardClient({
     if (!over) return;
 
     const taskId = String(active.id);
-    const toStatus = over.id as TaskStatus;
-    if (!STATUS_ORDER.includes(toStatus)) return;
+    const toStatus = resolveDropStatus(over);
+    if (!toStatus) return;
 
     const task = tasks.find((t) => t.id === taskId);
     if (!task || task.status === toStatus) return;
